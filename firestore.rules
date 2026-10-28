@@ -19,19 +19,36 @@ service cloud.firestore {
 
     match /accessLogs/{logId} {
       allow create: if request.auth != null
-        && request.resource.data.keys().hasOnly(['uid', 'accessedAt', 'ipAddress', 'userAgent', 'language', 'timeZone'])
-        && request.resource.data.keys().hasAll(['uid', 'accessedAt', 'userAgent', 'language', 'timeZone'])
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.accessedAt == request.time
-        && (!('ipAddress' in request.resource.data)
-          || (request.resource.data.ipAddress is string
-            && request.resource.data.ipAddress.size() <= 45))
-        && request.resource.data.userAgent is string
-        && request.resource.data.userAgent.size() <= 512
-        && request.resource.data.language is string
-        && request.resource.data.language.size() <= 100
-        && request.resource.data.timeZone is string
-        && request.resource.data.timeZone.size() <= 100;
+        && (validAccessLog() || validMealUpdateLog());
+
+      function validAccessLog() {
+        return request.resource.data.keys().hasOnly(['uid', 'accessedAt', 'ipAddress', 'userAgent', 'language', 'timeZone'])
+          && request.resource.data.keys().hasAll(['uid', 'accessedAt', 'userAgent', 'language', 'timeZone'])
+          && request.resource.data.accessedAt == request.time
+          && (!('ipAddress' in request.resource.data)
+            || (request.resource.data.ipAddress is string
+              && request.resource.data.ipAddress.size() <= 45))
+          && request.resource.data.userAgent is string
+          && request.resource.data.userAgent.size() <= 512
+          && request.resource.data.language is string
+          && request.resource.data.language.size() <= 100
+          && request.resource.data.timeZone is string
+          && request.resource.data.timeZone.size() <= 100;
+      }
+
+      function validMealUpdateLog() {
+        return request.resource.data.keys().hasOnly(['uid', 'eventType', 'action', 'week', 'meal', 'name', 'occurredAt'])
+          && request.resource.data.keys().hasAll(['uid', 'eventType', 'action', 'week', 'meal', 'name', 'occurredAt'])
+          && request.resource.data.eventType == 'meal_update'
+          && request.resource.data.action in ['marked_done', 'cleared']
+          && request.resource.data.week.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.meal.matches('^(mon|tue|wed|thu|fri|sat|sun)-(am|pm)$')
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 40
+          && request.resource.data.occurredAt == request.time;
+      }
     }
 
     match /{document=**} {

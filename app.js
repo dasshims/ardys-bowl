@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, serverTimestamp, Timestamp,
+  getFirestore, collection, doc, addDoc, writeBatch, onSnapshot, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { FAMILY } from "./family.js";
@@ -247,8 +247,19 @@ $("undo").addEventListener("click", () => {
 const mealRef = (week, id) => doc(db, "weeks", week, "meals", id);
 
 async function writeMeal(week, id, rec) {
-  if (rec) await setDoc(mealRef(week, id), rec);
-  else await deleteDoc(mealRef(week, id));
+  const batch = writeBatch(db);
+  if (rec) batch.set(mealRef(week, id), rec);
+  else batch.delete(mealRef(week, id));
+  batch.set(doc(collection(db, "accessLogs")), {
+    uid: state.uid,
+    eventType: "meal_update",
+    action: rec ? "marked_done" : "cleared",
+    week,
+    meal: id,
+    name: state.name,
+    occurredAt: serverTimestamp(),
+  });
+  await batch.commit();
 }
 
 async function getPublicIp() {

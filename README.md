@@ -39,7 +39,7 @@ Push these files to a repo, then **Settings → Pages → Deploy from a branch �
 
 - Each person enters their name once (stored in their browser). It's shown next to the meals they tick.
 - Data lives at `weeks/{Monday's date}/meals/{mon-am … sun-pm}`. A ticked meal is a document; un-ticking deletes it.
-- After anonymous sign-in, each app load tries to ask ipify for the public IP address and adds an `accessLogs` document with the address when available, plus the anonymous Firebase UID, server timestamp, browser user-agent, language, and time zone. If the IP lookup fails, it still records the visit without an IP. It does not collect the selected name. The app cannot read these logs; the Firebase project owner can view and delete them in the Firebase console. Logs have no automatic expiration.
+- After anonymous sign-in, each app load tries to ask ipify for the public IP address and adds an `accessLogs` document with the address when available, plus the anonymous Firebase UID, server timestamp, browser user-agent, language, and time zone. If the IP lookup fails, it still records the visit without an IP. When someone marks or clears a meal, the app also records the action, meal, week, selected name, anonymous Firebase UID, and server timestamp in `accessLogs`. Each meal change and its activity log are saved together. The app cannot read these logs; the Firebase project owner can view and delete them in the Firebase console. Logs have no automatic expiration.
 - Breakfast is "due" before 3pm, dinner after (`DINNER_FROM_HOUR` in `app.js`).
 
 ## Access-log architecture decision
@@ -48,7 +48,7 @@ For this family-only app, access logging uses a client-side HTTPS request to `ht
 
 ## Security note
 
-Anyone who has the URL can read and change meals (anonymous sign-in). Authenticated clients can also create access-log entries, but cannot read, update, or delete those logs through the app. These rules do not stop strangers from using the app or spoofing the client-reported IP. If you want to lock it to your family, switch to Google sign-in and allow-list emails in the rules, e.g.:
+Anyone who has the URL can read and change meals (anonymous sign-in). Authenticated clients can also create access and meal-activity log entries for their own Firebase UID, but cannot read, update, or delete those logs through the app. These rules do not stop strangers from using the app or spoofing the client-reported IP and activity. If you want to lock it to your family, switch to Google sign-in and allow-list emails in the rules, e.g.:
 
 ```
 allow read, write: if request.auth.token.email in ['you@gmail.com', 'partner@gmail.com'];
