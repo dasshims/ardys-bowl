@@ -1,6 +1,6 @@
 // Paste the config from Firebase console → Project settings → Your apps → Web app.
 // These values are not secrets; access is controlled by firestore.rules.
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyCl9FWOuDcaO-VH9QmR6g6WTHrfU_Nhzew",
   authDomain: "ardy-s-bowl.firebaseapp.com",
   projectId: "ardy-s-bowl",
