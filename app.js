@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, Timestamp,
+  getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { FAMILY } from "./family.js";
@@ -251,6 +251,35 @@ async function writeMeal(week, id, rec) {
   else await deleteDoc(mealRef(week, id));
 }
 
+async function getPublicIp() {
+  const response = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+  if (!response.ok) throw new Error(`IP lookup failed with status ${response.status}`);
+  const result = await response.json();
+  if (typeof result.ip !== "string" || !result.ip.trim() || result.ip.length > 45) {
+    throw new Error("IP lookup returned an invalid address");
+  }
+  return result.ip.trim();
+}
+
+async function recordAccess(user) {
+  let ipAddress;
+  try {
+    ipAddress = await getPublicIp();
+  } catch (e) {
+    console.warn("Couldn't look up visitor IP; recording access without it", e);
+  }
+
+  const accessLog = {
+    uid: user.uid,
+    accessedAt: serverTimestamp(),
+    userAgent: navigator.userAgent.slice(0, 512),
+    language: (navigator.language || "").slice(0, 100),
+    timeZone: (Intl.DateTimeFormat().resolvedOptions().timeZone || "").slice(0, 100),
+  };
+  if (ipAddress) accessLog.ipAddress = ipAddress;
+  await addDoc(collection(db, "accessLogs"), accessLog);
+}
+
 function labelFor(id) {
   const [d, m] = id.split("-");
   return `${DAY_LONG[DAYS.findIndex((x) => x.toLowerCase() === d)]} ${m === "am" ? "breakfast" : "dinner"}`;
@@ -403,11 +432,16 @@ render();
 renderMe();
 if (!state.name) openWho();
 
+let accessLogRecorded = false;
 onAuthStateChanged(auth, (user) => {
   if (!user) return;
   const first = !state.uid;
   state.uid = user.uid;
   if (first) subscribe();
+  if (!accessLogRecorded) {
+    accessLogRecorded = true;
+    recordAccess(user).catch((e) => console.error("Couldn't record app access", e));
+  }
 });
 signInAnonymously(auth).catch((e) => {
   console.error(e);

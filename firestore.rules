@@ -17,6 +17,23 @@ service cloud.firestore {
         && request.resource.data.at is timestamp;
     }
 
+    match /accessLogs/{logId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid', 'accessedAt', 'ipAddress', 'userAgent', 'language', 'timeZone'])
+        && request.resource.data.keys().hasAll(['uid', 'accessedAt', 'userAgent', 'language', 'timeZone'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.accessedAt == request.time
+        && (!('ipAddress' in request.resource.data)
+          || (request.resource.data.ipAddress is string
+            && request.resource.data.ipAddress.size() <= 45))
+        && request.resource.data.userAgent is string
+        && request.resource.data.userAgent.size() <= 512
+        && request.resource.data.language is string
+        && request.resource.data.language.size() <= 100
+        && request.resource.data.timeZone is string
+        && request.resource.data.timeZone.size() <= 100;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
