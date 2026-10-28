@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ardy's Bowl</title>
+  <meta name="description" content="Has Ardy been fed? Shared breakfast and dinner tracker for the family.">
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Ardy's Bowl">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="bowl" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 12h18a9 6 0 0 1-18 0Z"/><ellipse cx="9" cy="9.5" rx="1.6" ry="1.2"/><ellipse cx="13" cy="8.5" rx="1.6" ry="1.2"/><ellipse cx="16.5" cy="10" rx="1.4" ry="1.1"/></svg>
+        </div>
+        <h1>Ardy's Bowl</h1>
+      </div>
+      <div class="header-right">
+        <div class="sync" id="sync"><i></i><span>Connecting…</span></div>
+        <button class="me" id="meBtn" type="button" aria-label="Change your name" hidden></button>
+      </div>
+    </header>
+
+    <section class="status" aria-live="polite">
+      <div class="eyebrow" id="statusEyebrow">Right now</div>
+      <h2 id="statusTitle">Checking Ardy's bowl…</h2>
+      <p id="statusSub">Loading this week's meals.</p>
+      <div class="progress">
+        <div class="bar"><span id="bar"></span></div>
+        <div class="count" id="count">0 / 10</div>
+      </div>
+    </section>
+
+    <nav class="weeknav" aria-label="Week">
+      <button class="iconbtn" id="prev" type="button" aria-label="Previous week">
+        <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="range">
+        <span id="range">This week</span>
+        <button class="today-btn" id="toToday" type="button" hidden>Back to this week</button>
+      </div>
+      <button class="iconbtn" id="next" type="button" aria-label="Next week">
+        <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </nav>
+
+    <div class="days" id="days"></div>
+    <p class="note" id="note">Tap a meal when you've fed Ardy. Everyone in the family sees it straight away.</p>
+  </div>
+
+  <dialog id="nameDialog">
+    <form id="nameForm" method="dialog">
+      <h3>Who's feeding Ardy?</h3>
+      <p>Your name shows next to the meals you tick off, so the family knows who fed him.</p>
+      <label for="nameInput">Your name</label>
+      <input id="nameInput" name="name" type="text" maxlength="40" autocomplete="given-name" placeholder="e.g. Himangshu" required>
+      <button type="submit" class="primary">Save</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="undo" type="button">Undo</button></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
