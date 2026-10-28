@@ -77,6 +77,8 @@ function paintAvatar(el, name) {
     const img = document.createElement("img");
     img.src = p.photo; img.alt = ""; img.decoding = "async";
     el.appendChild(img);
+  } else if (p && p.icon) {
+    el.textContent = p.icon;
   } else if (name) {
     el.textContent = name.trim().charAt(0).toUpperCase();
   } else {
@@ -335,10 +337,17 @@ function openWho() {
       cover.src = p.cover || p.photo; cover.alt = ""; cover.decoding = "async";
     } else {
       cover = document.createElement("span");
-      cover.textContent = p.name.charAt(0).toUpperCase();
+      cover.className = "profile-icon";
+      cover.textContent = p.icon || p.name.charAt(0).toUpperCase();
     }
     const t = tile(p.name, cover, familyMember(state.name) === p ? "selected" : "", () => pickName(p.name));
     t.querySelector(".cover").style.setProperty("--avatar-bg", colorFor(p.name));
+    if (p.cover || p.photo) {
+      const icon = document.createElement("span");
+      icon.className = "profile-icon badge";
+      icon.textContent = p.icon || p.name.charAt(0).toUpperCase();
+      t.querySelector(".cover").appendChild(icon);
+    }
     wrap.appendChild(t);
   }
   wrap.appendChild(tile("Someone else", "+", "someone", () => {
