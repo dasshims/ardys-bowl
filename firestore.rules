@@ -1,14 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // weeks/{yyyy-mm-dd of Monday}/meals/{mon-am | mon-pm | ... | fri-pm}
+    // weeks/{yyyy-mm-dd of Monday}/meals/{mon-am | mon-pm | ... | sun-pm}
     match /weeks/{week}/meals/{meal} {
       allow read, delete: if request.auth != null
         && week.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
 
       allow create, update: if request.auth != null
         && week.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
-        && meal.matches('^(mon|tue|wed|thu|fri)-(am|pm)$')
+        && meal.matches('^(mon|tue|wed|thu|fri|sat|sun)-(am|pm)$')
         && request.resource.data.keys().hasOnly(['name', 'by', 'at'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0

@@ -1,6 +1,6 @@
 # Ardy's Bowl
 
-A shared Mon–Fri breakfast/dinner tracker for Ardy. Static site (GitHub Pages) + Firebase Firestore for live, shared state.
+A shared daily (Mon–Sun) breakfast/dinner tracker for Ardy. Static site (GitHub Pages) + Firebase Firestore for live, shared state.
 
 ## Files
 
@@ -38,7 +38,7 @@ Push these files to a repo, then **Settings → Pages → Deploy from a branch �
 ## How it works
 
 - Each person enters their name once (stored in their browser). It's shown next to the meals they tick.
-- Data lives at `weeks/{Monday's date}/meals/{mon-am … fri-pm}`. A ticked meal is a document; un-ticking deletes it.
+- Data lives at `weeks/{Monday's date}/meals/{mon-am … sun-pm}`. A ticked meal is a document; un-ticking deletes it.
 - Breakfast is "due" before 3pm, dinner after (`DINNER_FROM_HOUR` in `app.js`).
 
 ## Security note

@@ -6,8 +6,8 @@ import {
 import { firebaseConfig } from "./firebase-config.js";
 import { FAMILY } from "./family.js";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const DAY_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEALS = [{ key: "am", name: "Breakfast" }, { key: "pm", name: "Dinner" }];
 const DINNER_FROM_HOUR = 15; // before 3pm the "current" meal is breakfast
 const NAME_KEY = "ardy.name";
@@ -89,7 +89,6 @@ const displayName = (rec) => (rec.by === state.uid ? "You" : (rec.name || "Someo
 function currentSlot() {
   const now = new Date();
   const dow = (now.getDay() + 6) % 7; // 0 = Mon
-  if (dow > 4) return null;
   return { day: dow, meal: now.getHours() < DINNER_FROM_HOUR ? 0 : 1 };
 }
 const mealId = (di, mi) => `${DAYS[di].toLowerCase()}-${MEALS[mi].key}`;
@@ -117,13 +116,8 @@ function renderHero(fedCount, total) {
     hero.dataset.state = "rest";
     setHeroImage("rest");
     cta.hidden = true; fedBy.hidden = true;
-    if (isThisWeek()) {
-      kicker.textContent = "Weekend";
-      title.textContent = `Ardy had ${fedCount} of ${total} meals this week`;
-    } else {
-      kicker.textContent = `${fmtShort(state.monday)} – ${fmtShort(addDays(state.monday, 4))}`;
-      title.textContent = `Ardy had ${fedCount} of ${total} meals`;
-    }
+    kicker.textContent = `${fmtShort(state.monday)} – ${fmtShort(addDays(state.monday, 6))}`;
+    title.textContent = `Ardy had ${fedCount} of ${total} meals`;
     return;
   }
 
@@ -134,8 +128,8 @@ function renderHero(fedCount, total) {
 
   if (rec) {
     hero.dataset.state = "fed";
-    setHeroImage("fed");
     const allToday = state.meals[mealId(slot.day, 0)] && state.meals[mealId(slot.day, 1)];
+    setHeroImage(allToday ? "rest" : "fed");
     title.textContent = allToday ? "Ardy's all fed for today" : `Ardy's had ${meal}`;
     cta.hidden = true; fedBy.hidden = false;
     paintAvatar($("fedByAvatar"), rec.name);
@@ -162,7 +156,7 @@ function render() {
   $("today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
   $("weekLabel").textContent = isThisWeek()
     ? "This week"
-    : `${fmtShort(state.monday)} – ${fmtShort(addDays(state.monday, 4))}`;
+    : `${fmtShort(state.monday)} – ${fmtShort(addDays(state.monday, 6))}`;
   $("toToday").hidden = isThisWeek();
   $("next").disabled = state.monday >= state.thisMonday;
 

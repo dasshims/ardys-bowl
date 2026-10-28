@@ -169,7 +169,6 @@ h1 { margin: 0; font-family: var(--font-display); font-size: 34px; font-weight: 
 .daydate { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .row.today .dayname { color: var(--accent); }
 .row.today .daydate::before { content: "Today · "; color: var(--accent); font-weight: 600; }
-.row.weekend-past .dayname { color: var(--ink-2); }
 
 .dot-btn {
   justify-self: center; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; padding: 0;
